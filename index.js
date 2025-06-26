@@ -31,6 +31,7 @@ const paidSessions = new Map();
 // Endpoint para recibir la solicitud de cita
 app.post('/api/send-appointment-email', async (req, res) => {
   try {
+    console.log('BODY RECIBIDO:', req.body); // Log para depuración
     const { nombre, email, telefono, tipoCita, mensaje, session_id } = req.body;
 
     // 1. Validación básica de los datos recibidos
