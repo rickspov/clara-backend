@@ -34,13 +34,18 @@ app.post('/api/send-appointment-email', async (req, res) => {
     const { nombre, email, telefono, tipoCita, mensaje, session_id } = req.body;
 
     // 1. Validación básica de los datos recibidos
-    if (!nombre || !email || !telefono || !tipoCita || !session_id) {
-      return res.status(400).json({ success: false, error: 'Faltan campos requeridos o session_id.' });
+    if (!nombre || !email || !telefono || !tipoCita) {
+      return res.status(400).json({ success: false, error: 'Faltan campos requeridos.' });
     }
 
-    // 2. Validar que el session_id corresponde a un pago exitoso
-    if (!paidSessions.has(session_id)) {
-      return res.status(403).json({ success: false, error: 'El pago no ha sido verificado o session_id inválido.' });
+    // 2. Si la cita es online, validar session_id y pago exitoso
+    if (tipoCita.toLowerCase() === 'online') {
+      if (!session_id) {
+        return res.status(400).json({ success: false, error: 'Falta session_id para cita online.' });
+      }
+      if (!paidSessions.has(session_id)) {
+        return res.status(403).json({ success: false, error: 'El pago no ha sido verificado o session_id inválido.' });
+      }
     }
 
     // Email para el psicólogo (dueño del servicio)
