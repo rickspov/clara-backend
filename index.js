@@ -39,7 +39,7 @@ app.post('/api/send-appointment-email', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Faltan campos requeridos.' });
     }
 
-    // 2. Si la cita es online, validar session_id y pago exitoso
+    // 2. Validación según tipo de cita
     if (tipoCita.toLowerCase() === 'online') {
       if (!session_id) {
         return res.status(400).json({ success: false, error: 'Falta session_id para cita online.' });
@@ -48,6 +48,7 @@ app.post('/api/send-appointment-email', async (req, res) => {
         return res.status(403).json({ success: false, error: 'El pago no ha sido verificado o session_id inválido.' });
       }
     }
+    // Para cita presencial, no se exige session_id ni validación de pago
 
     // Email para el psicólogo (dueño del servicio)
     const emailToPsychologist = {
