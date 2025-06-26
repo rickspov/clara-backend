@@ -12,15 +12,18 @@ app.use(cors()); // Se puede configurar con más detalle: app.use(cors({ origin:
 app.use(express.json()); // Para parsear el body de las peticiones a JSON
 
 // --- Configuración de Nodemailer ---
-// Es crucial usar variables de entorno para no exponer tus credenciales.
+// Cambiado para usar Outlook SMTP
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', // Servidor SMTP de Gmail
-  port: 465,
-  secure: true, // true para 465, false para otros puertos como 587
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false, // true para 465, false para 587
   auth: {
-    user: process.env.EMAIL_USER, // Tu dirección de correo desde las variables de entorno
-    pass: process.env.EMAIL_PASS, // Tu contraseña de aplicación desde las variables de entorno
+    user: process.env.EMAIL_USER, // Tu correo de Outlook desde las variables de entorno
+    pass: process.env.EMAIL_PASS, // Tu contraseña de Outlook desde las variables de entorno
   },
+  tls: {
+    ciphers: 'SSLv3'
+  }
 });
 
 // Almacenamiento temporal en memoria para sesiones pagadas (solo para pruebas)
