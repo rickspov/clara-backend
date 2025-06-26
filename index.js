@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { Resend } = require('resend');
 
 const app = express();
 
@@ -25,6 +26,8 @@ const transporter = nodemailer.createTransport({
     ciphers: 'SSLv3'
   }
 });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Almacenamiento temporal en memoria para sesiones pagadas (solo para pruebas)
 const paidSessions = new Map();
@@ -55,7 +58,7 @@ app.post('/api/send-appointment-email', async (req, res) => {
 
     // Email para el psicólogo (dueño del servicio)
     const emailToPsychologist = {
-      from: `"Formulario de Cita" <${process.env.EMAIL_USER}>`,
+      from: 'hello@resend.dev',
       to: process.env.DEST_EMAIL,
       subject: `Nueva solicitud de cita de: ${nombre}`,
       html: `
@@ -75,7 +78,7 @@ app.post('/api/send-appointment-email', async (req, res) => {
 
     // Email de confirmación para el paciente
     const emailToPatient = {
-      from: `"Confirmación de Solicitud" <${process.env.EMAIL_USER}>`,
+      from: 'hello@resend.dev',
       to: email,
       subject: 'Hemos recibido tu solicitud de cita',
       html: `
@@ -94,10 +97,10 @@ app.post('/api/send-appointment-email', async (req, res) => {
       `,
     };
 
-    // 3. Enviar ambos correos en paralelo
+    // 3. Enviar ambos correos en paralelo usando Resend
     await Promise.all([
-        transporter.sendMail(emailToPsychologist),
-        transporter.sendMail(emailToPatient)
+      resend.emails.send(emailToPsychologist),
+      resend.emails.send(emailToPatient)
     ]);
 
     // 4. Responder con éxito
